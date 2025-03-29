@@ -1,21 +1,44 @@
 import { useState } from "react";
+import axios from "axios";
 import "./Chatbot.css";
 
 function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage = { text: input, sender: "user" };
     setMessages([...messages, userMessage]);
     setInput("");
+    setLoading(true);
 
-    setTimeout(() => {
-      const botMessage = { text: "I'm your AI assistant! How can I help? 😊", sender: "bot" };
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:1234", // LM Studio API endpoint
+        {
+          model: "gemma-3-4b-it", // Model identifier from your screenshot
+          messages: [{ role: "user", content: input }],
+          max_tokens: 100,
+          temperature: 0.7,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const botMessage = { text: response.data.choices[0].message.content, sender: "bot" };
       setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
+    } catch (error) {
+      console.error("Error calling LM Studio API:", error);
+      setMessages((prev) => [...prev, { text: "Error: Unable to get response.", sender: "bot" }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,6 +50,7 @@ function Chatbot() {
             {msg.text}
           </div>
         ))}
+        {loading && <div className="message bot">...Loading...</div>}
       </div>
       <div className="chat-input">
         <input
