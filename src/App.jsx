@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import Chatbot from "./ChatBot";
 import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0);
+  return (
+    <Router>
+      <Routes>
+        {/* Home Page */}
+        <Route path="/" element={<Home />} />
+        {/* Chatbot Page */}
+        <Route path="/chat" element={<Chatbot />} />
+      </Routes>
+    </Router>
+  );
+}
 
+function Home() {
   return (
     <div className="container">
-      {/* Pulsating Background */}
       <div className="pulsating-sphere"></div>
-
-      {/* Content */}
       <div className="content">
         <h1>Mental Zen</h1>
         <p className="subtitle">
@@ -17,12 +26,12 @@ function App() {
           personalized AI!
         </p>
         <div className="button-container">
-          <a href="#">
+          <Link to="/meditate">
             <button className="button">Meditate With Zenny</button>
-          </a>
-          <a href="#">
+          </Link>
+          <Link to="/chat">
             <button className="button">Start New Chat</button>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
