@@ -1,6 +1,10 @@
 import { useState } from "react";
-import axios from "axios";
+import { GoogleGenAI } from "@google/genai";
 import "./Chatbot.css";
+
+// Initialize the Gemini API
+const genAI = new GoogleGenAI(import.meta.env.VITE_GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 function Chatbot() {
   const [messages, setMessages] = useState([]);
@@ -16,26 +20,21 @@ function Chatbot() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:1234", // LM Studio API endpoint
-        {
-          model: "gemma-3-4b-it", // Model identifier from your screenshot
-          messages: [{ role: "user", content: input }],
-          max_tokens: 100,
-          temperature: 0.7,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const botMessage = { text: response.data.choices[0].message.content, sender: "bot" };
+      const result = await model.generateContent(input);
+      const response = await result.response;
+      const text = response.text();
+      
+      const botMessage = { 
+        text: text, 
+        sender: "bot" 
+      };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.error("Error calling LM Studio API:", error);
-      setMessages((prev) => [...prev, { text: "Error: Unable to get response.", sender: "bot" }]);
+      console.error("Error calling Gemini API:", error);
+      setMessages((prev) => [...prev, { 
+        text: `Error: ${error.message || "Unable to get response"}`, 
+        sender: "bot" 
+      }]);
     } finally {
       setLoading(false);
     }
