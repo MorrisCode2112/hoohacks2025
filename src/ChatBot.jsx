@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { GoogleGenAI } from "@google/genai";
 import "./ChatBot.css";
 
@@ -9,6 +9,28 @@ function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const chatBoxRef = useRef(null);
+
+  // Fetch messages from API when component mounts
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/messages");
+        const data = await response.json();
+        setMessages(data);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    fetchMessages();
+  }, []);
+
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -19,22 +41,31 @@ function Chatbot() {
     setLoading(true);
 
     try {
+      // Get AI response
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
         contents: input
       });
-      
-      const botMessage = { 
-        text: response.text, 
-        sender: "bot" 
-      };
+
+      const botMessage = { text: response.text, sender: "bot" };
+
+      // Save messages to MongoDB
+      await fetch("http://localhost:5000/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userMessage),
+      });
+
+      await fetch("http://localhost:5000/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(botMessage),
+      });
+
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       console.error("Error calling Gemini API:", error);
-      setMessages((prev) => [...prev, { 
-        text: `Error: ${error.message || "Unable to get response"}`, 
-        sender: "bot" 
-      }]);
+      setMessages((prev) => [...prev, { text: `Error: ${error.message}`, sender: "bot" }]);
     } finally {
       setLoading(false);
     }
@@ -43,13 +74,13 @@ function Chatbot() {
   return (
     <div className="chat-container">
       <h1>AI Chatbot</h1>
-      <div className="chat-box">
+      <div ref={chatBoxRef} className="chat-box">
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.sender}`}>
             {msg.text}
           </div>
         ))}
-        {loading && <div className="message bot">...Loading...</div>}
+        {loading && <div className="message bot">...</div>}
       </div>
       <div className="chat-input">
         <input
