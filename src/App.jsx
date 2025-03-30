@@ -14,6 +14,7 @@ function App() {
         <Route path="/" element={<Home />} />
         {/* Chatbot Page */}
         <Route path="/chat" element={<Chatbot />} />
+        <Route path="/meditate" element={<Meditate />} />
       </Routes>
     </Router>
   );
