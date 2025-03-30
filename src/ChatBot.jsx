@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { GoogleGenAI } from "@google/genai";
-import "./Chatbot.css";
+import "./ChatBot.css";
 
 // Initialize the Gemini API
-const genAI = new GoogleGenAI(import.meta.env.VITE_GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const ai = new GoogleGenAI({ apiKey: "AIzaSyBMX7EXzIlc3i0KdX8B1z7Jn9x3AllQq_4"});
 
 function Chatbot() {
   const [messages, setMessages] = useState([]);
@@ -20,12 +19,13 @@ function Chatbot() {
     setLoading(true);
 
     try {
-      const result = await model.generateContent(input);
-      const response = await result.response;
-      const text = response.text();
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: input
+      });
       
       const botMessage = { 
-        text: text, 
+        text: response.text, 
         sender: "bot" 
       };
       setMessages((prev) => [...prev, botMessage]);
