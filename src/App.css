@@ -78,6 +78,18 @@ body, html {
   z-index: 0;
 }
 
+.pulsating-sphere-green {
+  position: absolute;
+  width: 80vw;
+  height: 80vw;
+  max-width: 700px;
+  max-height: 700px;
+  background: radial-gradient(circle, rgba(1, 255, 166, 0.6), rgba(0, 255, 26, 0.8));
+  border-radius: 50%;
+  animation: pulse 8s infinite ease-in-out;
+  z-index: 0;
+}
+
 /* Pulsating Animation */
 @keyframes pulse {
   0% {
@@ -107,6 +119,7 @@ body, html {
 h1 {
   font-size: 3rem;
   margin-bottom: 10px;
+  color: antiquewhite;
 }
 
 .subtitle {
