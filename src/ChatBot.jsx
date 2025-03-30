@@ -21,7 +21,7 @@ function Chatbot() {
     try {
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: input
+        contents: "You are a compassionate and professional therapist. Respond to the following message with empathy, validation, and gentle guidance. Use open-ended questions to encourage self-reflection. Keep your response concise (3-4 lines) and therapeutic: " + input,
       });
 
       const botMessage = { 
